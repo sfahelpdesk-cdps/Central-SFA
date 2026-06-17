@@ -1,5 +1,5 @@
 // =============================================================
-// CENTRAL SFA - Page Renderers
+// CENTRAL SFA - Page Renderers (FIXED)
 // =============================================================
 
 // ─────────────────────────────────────────────────────────────
@@ -112,6 +112,7 @@ function togglePwd() {
   else { el.type = 'password'; eye.textContent = 'visibility'; }
 }
 
+// FIXED: Error handling yang lebih baik — tidak di-swalow, log ke console
 async function doLogin() {
   const username = document.getElementById('inp-username').value.trim();
   const password = document.getElementById('inp-password').value;
@@ -120,7 +121,14 @@ async function doLogin() {
     await SFA.Auth.login(username, password);
     SFA.UI.showToast('Selamat datang, ' + SFA.state.user.name + '!', 'success');
     SFA.Router.go('dashboard');
-  } catch(_) {}
+  } catch(err) {
+    // FIXED: Log error ke console untuk debugging, jangan di-swalow
+    console.error('Login gagal:', err);
+    // Toast sudah ditampilkan oleh SFA.api(), tapi tambahkan info debug
+    if (err.message && err.message.includes('API URL')) {
+      SFA.UI.showToast('URL API belum diatur. Klik ⚙ Atur URL API di bawah.', 'error');
+    }
+  }
 }
 
 function setApiUrl() {
@@ -296,7 +304,7 @@ function renderRouteList(routes) {
         <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-black text-sm
           ${r.status === 'Visited' ? 'bg-green-100 text-green-600' : 'bg-red-50 text-[#bb000f]'}">
           ${r.status === 'Visited'
-            ? '<span class="material-symbols-outlined text-[20px]" style="font-variation-settings:\'FILL\' 1">check_circle</span>'
+            ? '<span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1">check_circle</span>'
             : r.sequence}
         </div>
         <div class="flex-1 min-w-0">
