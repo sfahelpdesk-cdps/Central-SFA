@@ -1,5 +1,5 @@
 // =============================================================
-// CENTRAL SFA - Page Renderers (FIXED)
+// CENTRAL SFA - Page Renderers (FIXED v2)
 // =============================================================
 
 // ─────────────────────────────────────────────────────────────
@@ -112,22 +112,31 @@ function togglePwd() {
   else { el.type = 'password'; eye.textContent = 'visibility'; }
 }
 
-// FIXED: Error handling yang lebih baik — tidak di-swalow, log ke console
+// FIXED: Login dengan error handling lengkap
 async function doLogin() {
   const username = document.getElementById('inp-username').value.trim();
   const password = document.getElementById('inp-password').value;
-  if (!username || !password) { SFA.UI.showToast('Username dan password wajib diisi', 'error'); return; }
+
+  if (!username || !password) { 
+    SFA.UI.showToast('Username dan password wajib diisi', 'error'); 
+    return; 
+  }
+
+  console.log('🔑 Attempting login:', username);
+
   try {
-    await SFA.Auth.login(username, password);
-    SFA.UI.showToast('Selamat datang, ' + SFA.state.user.name + '!', 'success');
-    SFA.Router.go('dashboard');
+    const user = await SFA.Auth.login(username, password);
+    console.log('✅ Login success:', user);
+    SFA.UI.showToast('Selamat datang, ' + user.name + '!', 'success');
+
+    // FIXED: Gunakan window.location untuk force redirect
+    setTimeout(() => {
+      window.location.hash = '#dashboard';
+    }, 500);
+
   } catch(err) {
-    // FIXED: Log error ke console untuk debugging, jangan di-swalow
-    console.error('Login gagal:', err);
-    // Toast sudah ditampilkan oleh SFA.api(), tapi tambahkan info debug
-    if (err.message && err.message.includes('API URL')) {
-      SFA.UI.showToast('URL API belum diatur. Klik ⚙ Atur URL API di bawah.', 'error');
-    }
+    console.error('❌ Login failed:', err);
+    // Error toast sudah ditampilkan oleh SFA.api()
   }
 }
 
@@ -421,7 +430,7 @@ async function doCheckIn(outletId) {
     const { data } = await SFA.Data.checkIn(outletId, lat, lng);
     SFA.UI.showToast(`Check-in berhasil pukul ${data.checkInTime}`, 'success');
     document.getElementById('btn-checkin').textContent = `✓ Sudah Check-in ${data.checkInTime}`;
-    document.getElementById('btn-checkin').disabled = true;
+    document.getElementByCode.gs('btn-checkin').disabled = true;
     document.getElementById('btn-checkin').classList.add('opacity-60');
   } catch(_) {}
 }
