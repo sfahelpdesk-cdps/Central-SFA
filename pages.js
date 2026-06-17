@@ -132,7 +132,7 @@ function setApiUrl() {
 // PAGE: DASHBOARD
 // ─────────────────────────────────────────────────────────────
 Pages.dashboard = async function() {
-  SFA.Auth.requireAuth();
+  if (!SFA.Auth.requireAuth()) return;
   const user = SFA.state.user;
 
   SFA.UI.render(`
@@ -244,7 +244,7 @@ Pages.dashboard = async function() {
 // PAGE: ROUTES
 // ─────────────────────────────────────────────────────────────
 Pages.routes = async function() {
-  SFA.Auth.requireAuth();
+  if (!SFA.Auth.requireAuth()) return;
 
   SFA.UI.render(`
   ${topBar('Rencana Rute', false, `
@@ -322,7 +322,7 @@ function filterRoutes(q) {
 // PAGE: OUTLET DETAIL
 // ─────────────────────────────────────────────────────────────
 Pages.outlet = async function({ id }) {
-  SFA.Auth.requireAuth();
+  if (!SFA.Auth.requireAuth()) return;
   if (!id) { SFA.Router.go('routes'); return; }
 
   SFA.UI.render(`
@@ -431,7 +431,7 @@ async function doCheckOut(outletId) {
 // PAGE: INPUT ORDER
 // ─────────────────────────────────────────────────────────────
 Pages.order = function({ outletId }) {
-  SFA.Auth.requireAuth();
+  if (!SFA.Auth.requireAuth()) return;
 
   // Sample product catalog – replace with API call if needed
   const catalog = [
@@ -512,7 +512,7 @@ function renderProducts(products) {
     const inCart = cart.find(i => i.sku === p.sku);
     const qty = inCart ? inCart.qty : 0;
     return `
-    <div class="bg-white border rounded-2xl p-4 flex items-center gap-3 shadow-sm
+    <div class="relative bg-white border rounded-2xl p-4 flex items-center gap-3 shadow-sm
                 ${p.focus ? 'border-amber-300 bg-amber-50/50' : 'border-gray-100'}">
       ${p.focus ? `<span class="absolute top-2 right-2 bg-amber-400 text-gray-900 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Focus</span>` : ''}
       <div class="flex-1 min-w-0">
@@ -585,7 +585,7 @@ async function submitOrder() {
 // PAGE: ORDER HISTORY
 // ─────────────────────────────────────────────────────────────
 Pages.orders = async function() {
-  SFA.Auth.requireAuth();
+  if (!SFA.Auth.requireAuth()) return;
 
   SFA.UI.render(`
   ${topBar('Riwayat Aktivitas', false)}
@@ -636,7 +636,7 @@ Pages.orders = async function() {
 // PAGE: PROFILE
 // ─────────────────────────────────────────────────────────────
 Pages.profile = function() {
-  SFA.Auth.requireAuth();
+  if (!SFA.Auth.requireAuth()) return;
   const user = SFA.state.user;
   SFA.UI.render(`
   ${topBar('Profil Saya', false)}
