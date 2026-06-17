@@ -60,6 +60,7 @@
     /* Safe area padding for iOS notch */
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
   </style>
+<base target="_blank">
 </head>
 
 <body class="bg-gray-50">
@@ -80,33 +81,50 @@
   <!-- App Shell -->
   <div id="app" class="min-h-screen"></div>
 
-  <!-- Scripts -->
-<script src="app.js"></script>
+  <!-- FIXED: Urutan script dan path -->
+  <!-- 1. Definisikan Pages dulu -->
   <script>
-    // Page registry (must be defined BEFORE pages.js)
-    const Pages = {};
+    window.Pages = {};
   </script>
-<script src="pages.js"></script>
 
+  <!-- 2. Load app.js -->
+  <script src="app.js"></script>
+
+  <!-- 3. Load pages.js -->
+  <script src="pages.js"></script>
+
+  <!-- 4. Register routes dan boot -->
   <script>
-    // Register routes
-    SFA.Router.register('login',     Pages.login);
-    SFA.Router.register('dashboard', Pages.dashboard);
-    SFA.Router.register('routes',    Pages.routes);
-    SFA.Router.register('outlet',    Pages.outlet);
-    SFA.Router.register('order',     Pages.order);
-    SFA.Router.register('orders',    Pages.orders);
-    SFA.Router.register('profile',   Pages.profile);
-    SFA.Router.register('404', () => {
-      SFA.UI.render(`<div class="flex flex-col items-center justify-center min-h-screen text-gray-400">
-        <span class="material-symbols-outlined text-6xl mb-3">error</span>
-        <p class="font-bold">Halaman tidak ditemukan</p>
-        <button onclick="SFA.Router.go('dashboard')" class="mt-4 text-[#bb000f] font-semibold text-sm">Kembali ke Dashboard</button>
-      </div>`);
-    });
+    (function() {
+      // Auto-set URL API kalau belum ada (ganti dengan URL Anda)
+      const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby1EvEx2IulsP3GtiwGZg9u_YNWxQk2s0UzbbJNMD3AoelxNB2WnbO7PLVBwQgnJ8OFjw/exec';
+      if (!localStorage.getItem('sfa_api_url')) {
+        localStorage.setItem('sfa_api_url', DEFAULT_API_URL);
+        console.log('✅ URL API auto-set:', DEFAULT_API_URL);
+      }
 
-    // Boot
-    SFA.Router.init();
+      // Register semua routes
+      SFA.Router.register('login',     Pages.login);
+      SFA.Router.register('dashboard', Pages.dashboard);
+      SFA.Router.register('routes',    Pages.routes);
+      SFA.Router.register('outlet',    Pages.outlet);
+      SFA.Router.register('order',     Pages.order);
+      SFA.Router.register('orders',    Pages.orders);
+      SFA.Router.register('profile',   Pages.profile);
+      SFA.Router.register('404', function() {
+        SFA.UI.render('<div class="flex flex-col items-center justify-center min-h-screen text-gray-400">' +
+          '<span class="material-symbols-outlined text-6xl mb-3">error</span>' +
+          '<p class="font-bold">Halaman tidak ditemukan</p>' +
+          '<button onclick="SFA.Router.go('dashboard')" class="mt-4 text-[#bb000f] font-semibold text-sm">Kembali ke Dashboard</button>' +
+        '</div>');
+      });
+
+      console.log('✅ Routes registered:', Object.keys(SFA.Router.routes));
+      console.log('✅ Pages keys:', Object.keys(Pages));
+
+      // Boot router
+      SFA.Router.init();
+    })();
   </script>
 </body>
 </html>
