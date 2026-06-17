@@ -5,7 +5,7 @@
 const SFA = (() => {
 
   // ── Ganti URL ini setelah deploy Apps Script ──
-const API_URL = localStorage.getItem('sfa_api_url') || 'https://docs.google.com/spreadsheets/d/14Pbm0kYCCE4h14gkqh_Ewg55O5yqsGwxB8DN-fTqSbw/edit?gid=2141545308#gid=2141545308';
+const API_URL = localStorage.getItem('sfa_api_url') || 'https://script.google.com/macros/s/AKfycby1EvEx2IulsP3GtiwGZg9u_YNWxQk2s0UzbbJNMD3AoelxNB2WnbO7PLVBwQgnJ8OFjw/exec';
   // ─────────────────────────────────────────────
   // STATE
   // ─────────────────────────────────────────────
