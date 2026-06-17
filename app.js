@@ -1,11 +1,12 @@
 // =============================================================
-// CENTRAL SFA - API Client & State Management
+// CENTRAL SFA - API Client & State Management (FIXED)
 // =============================================================
 
 const SFA = (() => {
 
-  // ── URL Web App Apps Script (sudah otomatis, tidak perlu diisi manual) ──
-  const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby1EvEx2IulsP3GtiwGZg9u_YNWxQk2s0UzbbJNMD3AoelxNB2WnbO7PLVBwQgnJ8OFjw/exec';
+  // ── Ganti URL ini setelah deploy Apps Script ──
+  // FIXED: Default kosong, bukan Sheet ID. User harus set via "⚙ Atur URL API"
+  const API_URL = localStorage.getItem('sfa_api_url') || '';
 
   // ─────────────────────────────────────────────
   // STATE
@@ -21,25 +22,41 @@ const SFA = (() => {
   // API HELPER
   // ─────────────────────────────────────────────
   async function api(action, params = {}, method = 'GET') {
-    const apiUrl = localStorage.getItem('sfa_api_url') || DEFAULT_API_URL;
+    const apiUrl = localStorage.getItem('sfa_api_url') || '';
 
-    if (!apiUrl || apiUrl.includes('PASTE_URL')) {
+    // FIXED: Validasi lebih ketat — harus URL script.google.com yang valid
+    if (!apiUrl || !apiUrl.includes('script.google.com')) {
       UI.showToast('URL API belum diatur. Klik ⚙ Atur URL API.', 'error');
       throw new Error('API URL belum diatur');
     }
 
-    // Apps Script Web App: semua request dikirim via GET query string
-    const url = new URL(apiUrl);
-    url.searchParams.set('action', action);
-    Object.entries(params).forEach(([k, v]) => {
-      if (v !== undefined && v !== null) {
-        url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
-      }
-    });
+    let fetchUrl, options;
+
+    if (method === 'GET') {
+      const url = new URL(apiUrl);
+      url.searchParams.set('action', action);
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) url.searchParams.set(k, v);
+      });
+      fetchUrl = url.toString();
+      options  = { method: 'GET' };
+    } else {
+      // Apps Script tidak mendukung POST body JSON dari fetch lintas origin,
+      // kirim via query string sebagai workaround yang andal
+      const url = new URL(apiUrl);
+      url.searchParams.set('action', action);
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) {
+          url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
+        }
+      });
+      fetchUrl = url.toString();
+      options  = { method: 'GET' }; // Apps Script Web App: gunakan GET untuk semua request
+    }
 
     UI.showLoader();
     try {
-      const res  = await fetch(url.toString(), { method: 'GET' });
+      const res  = await fetch(fetchUrl, options);
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || 'Server error');
       return data;
@@ -129,7 +146,9 @@ const SFA = (() => {
       window.location.hash = '#' + name + qs;
     },
     init() {
+      // Tunggu DOM siap DAN semua route sudah diregister
       window.addEventListener('hashchange', Router._resolve);
+      // Tunda _resolve satu tick agar inline <script> setelah init() selesai dulu
       setTimeout(Router._resolve, 0);
     },
     _resolve() {
@@ -140,6 +159,7 @@ const SFA = (() => {
       if (handler) {
         handler(params);
       } else {
+        // Fallback aman jika 404 route belum diregister
         SFA.UI.render(`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#888;font-family:sans-serif">
           <p style="font-size:18px;font-weight:bold">Halaman tidak ditemukan</p>
           <button onclick="SFA.Router.go('login')" style="margin-top:16px;color:#bb000f;font-weight:600">Kembali ke Login</button>
@@ -216,7 +236,7 @@ const SFA = (() => {
       }
     },
     getApiUrl() {
-      return localStorage.getItem('sfa_api_url') || DEFAULT_API_URL;
+      return localStorage.getItem('sfa_api_url') || '';
     },
   };
 
