@@ -1,0 +1,24 @@
+{
+  "name": "Central SFA",
+  "short_name": "SFA",
+  "description": "Sales Force Automation - Central Distrindo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#bb000f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/bb000f/ffffff?text=SFA",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/bb000f/ffffff?text=SFA",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
